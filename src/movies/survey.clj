@@ -16,6 +16,13 @@ group by ?class ?pred
 order by ?class ?cnt
 ")
 
+(def pred-details "
+select ?pred (count(?subj) as ?cnt)
+{ ?subj ?pred ?obj }
+group by ?pred
+order by ?pred
+")
+
 (def locations (str prefix "
 select ?film ?place {
 ?f a :film . ?f rdfs:label ?film .
