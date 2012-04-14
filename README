@@ -1,13 +1,8 @@
-# movies
 
-FIXME: write description
+Small library for pulling data down from the Linked Movie Database (http://data.linkedmdb.org/) and surveying its contents.
 
-## Usage
 
-FIXME: write
 
-## License
-
-Copyright (C) 2012 FIXME
+Copyright (C) 2012 
 
 Distributed under the Eclipse Public License, the same as Clojure.
