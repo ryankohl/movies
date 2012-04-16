@@ -23,6 +23,10 @@ group by ?pred
 order by ?pred
 ")
 
+(defn subj-cnt [x] (str prefix "
+select distinct (count(?s) as ?cnt) 
+{ ?s a :" x "}") )
+
 (def locations (str prefix "
 select ?film ?place {
 ?f a :film . ?f rdfs:label ?film .
@@ -32,3 +36,4 @@ select ?film ?place {
 (defn get-files [] (filter #(.isFile %) (file-seq (file "raw"))))
 
 (defn get-graph [] (reduce build (get-files)))
+
