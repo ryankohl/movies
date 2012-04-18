@@ -1,7 +1,13 @@
 (ns movies.download
   (:use [seabass core])
+  (:use [clojure.java.io :only (file)])
   (:use [incanter core stats charts io datasets])
   (:require [clojure string]))
+
+(def prefix
+  (str "prefix : <http://data.linkedmdb.org/resource/movie/> "
+       "prefix foaf: <http://xmlns.com/foaf/0.1/> "
+       "prefix dc: <http://purl.org/dc/terms/> "))
 
 (def lmdb "http://data.linkedmdb.org/sparql")
 
@@ -21,25 +27,29 @@
 
 ; (-> (get-classes) download-data)
 
-(def dbpedia "http://dbpedia.org/sparql")
+(defn dbpedia [x] (str "http://dbpedia.org/data/" x ".ntriples"))
 
 (def dbp-links (str prefix "
 select ?dbp
-{ ?f owl:sameAs ?dbp . filter regex(str(?dbp), '^http://dbpedia.org/') . }
-order by ?f
+{ ?f owl:sameAs ?dbp . filter regex(str(?dbp), '^http://dbpedia.org/') }
 "))
 
 (defn get-links [m] ($ :dbp (bounce dbp-links m)))
 
-(defn download-links [l]
+(defn link-download [l]
   (let [linkname (last (clojure.string/split l #"/"))
-        query (str "construct {?s ?p ?o} {<"l"> ?p ?o")
-        graph (pull query dbpedia)]
-    (Thread/sleep 200)
-    (pr ".")
-    (stash graph (str "raw/link-" linkname ".nt"))))
+        link (clojure.string/replace linkname "\"" "")
+        data (slurp (dbpedia link))
+        ]
+    (Thread/sleep 1000)
+    (spit (str "raw/link-" link ".nt") data)
+    (pr "")
+    ))
 
-; (defn get-files [] (filter #(.isFile %) (file-seq (file "raw"))))
-; (defn get-graph [] (reduce build (get-files)))
+(defn get-files [] (filter #(.isFile %) (file-seq (file "raw"))))
+(defn get-graph [] (reduce build (get-files)))
+(defn download-link-data [L] (doseq [i L]
+                               (try (link-download i)
+                                    (catch Exception e (prn "!")))))
 ; (def m (get-graph))
-; (-> (get-links) download-links)
+; (-> (get-links m) download-link-data)
