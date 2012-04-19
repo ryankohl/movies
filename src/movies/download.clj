@@ -21,10 +21,9 @@
         graph (pull query lmdb)]
     (Thread/sleep 200)
     (pr ".")
-    (stash graph (str "raw/file-" class-name ".nt"))))
+    (stash graph (str "data-lmdb/lmdb-" class-name ".nt"))))
 
 (defn download-data [L] (doseq [i L] (class-download i)))
-
 ; (-> (get-classes) download-data)
 
 (defn dbpedia [x] (str "http://dbpedia.org/data/" x ".ntriples"))
@@ -42,11 +41,11 @@ select ?dbp
         data (slurp (dbpedia link))
         ]
     (Thread/sleep 1000)
-    (spit (str "raw/link-" link ".nt") data)
+    (spit (str "data-dbpedia/dbp-" link ".nt") data)
     (pr "")
     ))
 
-(defn get-files [] (filter #(.isFile %) (file-seq (file "raw"))))
+(defn get-files [] (filter #(.isFile %) (file-seq (file "data-lmdb"))))
 (defn get-graph [] (reduce build (get-files)))
 (defn download-link-data [L] (doseq [i L]
                                (try (link-download i)

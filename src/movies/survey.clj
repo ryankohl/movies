@@ -33,7 +33,10 @@ select ?film ?place {
 ?f :featured_film_location ?p . ?p rdfs:label ?place
 }"))
 
-(defn get-files [] (filter #(.isFile %) (file-seq (file "raw"))))
+(defn get-files [x] (filter #(.isFile %) (file-seq (file x))))
 
-(defn get-graph [] (reduce build (get-files)))
+(defn get-graph [x] (reduce build (get-files (str "data-" x))))
 
+; (def m (get-graph "lmdb"))
+; (def n (get-graph "dbpedia"))
+; hey, why not push all 4000ish dbpedia nt files into a single file
