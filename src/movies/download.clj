@@ -1,8 +1,8 @@
 (ns movies.download
   (:use [seabass core])
-  (:use [clojure.java.io :only (file)])
   (:use [incanter core stats charts io datasets])
-  (:require [clojure string]))
+  (:require [clojure string])
+  (:require [clojure.java.io :as io]))
 
 (def prefix
   (str "prefix : <http://data.linkedmdb.org/resource/movie/> "
@@ -24,7 +24,7 @@
     (stash graph (str "data-lmdb/lmdb-" class-name ".nt"))))
 
 (defn download-data [L] (doseq [i L] (class-download i)))
-; (-> (get-classes) download-data)
+
 
 (defn dbpedia [x] (str "http://dbpedia.org/data/" x ".ntriples"))
 
@@ -45,10 +45,20 @@ select ?dbp
     (pr "")
     ))
 
-(defn get-files [] (filter #(.isFile %) (file-seq (file "data-lmdb"))))
-(defn get-graph [] (reduce build (get-files)))
+(defn get-files [x] (filter #(.isFile %) (file-seq (io/file (str "data-" x)))))
+(defn get-graph [] (reduce build (get-files "lmdb")))
 (defn download-link-data [L] (doseq [i L]
                                (try (link-download i)
                                     (catch Exception e (prn "!")))))
-; (def m (get-graph))
-; (-> (get-links m) download-link-data)
+
+(defn consolidate [x]
+  (doseq [f (get-files x)]
+    (with-open [w (io/writer (io/file (str "data/" x ".nt")) :append true)]
+      (spit w (slurp f)))))
+
+;; (-> (get-classes) download-data)
+;; (def m (get-graph))
+;; (-> (get-links m) download-link-data)
+;; (consolidate "lmdb")
+;; (consolidate "dbpedia")
+
